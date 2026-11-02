@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'A2Z';
+    font-style: normal;
+    font-weight: 400;
+    src: url(A2Z-5Medium.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'A2Z';
+    font-style: normal;
+    font-weight: 700;
+    src: url(A2Z-7Bold.woff2) format('woff2');
+}

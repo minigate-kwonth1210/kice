@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KICE 프로토 차시 시연</title>
+<style>
+  :root { --bar: 56px; --bg: #1f2430; --fg: #e8ebf2; --muted: #9aa3b5; --accent: #4f8cff; }
+  html, body { margin: 0; height: 100%; background: #000; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { height: var(--bar); flex: none; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: var(--bg); color: var(--fg); overflow-x: auto; white-space: nowrap; }
+  header h1 { font-size: 15px; font-weight: 700; margin: 0 12px 0 0; color: var(--fg); }
+  header h1 small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+  nav { display: flex; gap: 6px; flex: 1; }
+  nav button { border: 1px solid #3a4150; background: #2a3040; color: var(--fg); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; line-height: 1.25; text-align: left; }
+  nav button b { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+  nav button:hover { border-color: var(--accent); }
+  nav button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  nav button.on b { color: #dbe7ff; }
+  .tools { display: flex; gap: 6px; }
+  .tools a, .tools button { border: 1px solid #3a4150; background: transparent; color: var(--muted); border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .tools a:hover, .tools button:hover { color: var(--fg); border-color: var(--fg); }
+  main { flex: 1; min-height: 0; background: #000; }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+  .empty { height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>KICE 프로토<small>차시 시연</small></h1>
+  <nav id="nav"></nav>
+  <div class="tools">
+    <button id="reload" title="처음부터 다시">다시 시작</button>
+    <a id="open" href="#" target="_blank" title="새 창에서 열기">새 창</a>
+  </div>
+</header>
+<main id="main"><div class="empty">위에서 차시를 고르세요.</div></main>
+<script>
+  var COURSES = [
+    { id: 'E12-KO-001', subject: '국어', grade: '1~2학년군', title: '일이 일어난 순서 파악하며 듣고 말하기' },
+    { id: 'E12-MA-009', subject: '수학', grade: '1~2학년군', title: '규칙에 따라 이어서 배열하기' },
+    { id: 'E34-SO-002', subject: '사회', grade: '3~4학년군', title: '살기 좋은 곳의 조건 알아보기' },
+    { id: 'E34-SC-001', subject: '과학', grade: '3~4학년군', title: '밀고 당길 때 힘의 작용 알기' },
+    { id: 'E34-EN-001', subject: '영어', grade: '3~4학년군', title: '알파벳과 단어의 소리 식별하기' },
+  ];
+  var nav = document.getElementById('nav');
+  var main = document.getElementById('main');
+  var openLink = document.getElementById('open');
+  var current = null;
+
+  function urlOf(id) { return id + '/index.html'; }
+
+  function show(id) {
+    var c = COURSES.filter(function (x) { return x.id === id; })[0];
+    if (!c) return;
+    current = id;
+    Array.prototype.forEach.call(nav.children, function (b) { b.classList.toggle('on', b.dataset.id === id); });
+    main.innerHTML = '';
+    var f = document.createElement('iframe');
+    f.src = urlOf(id) + '?t=' + Date.now();
+    f.allow = 'autoplay; microphone; fullscreen';
+    f.setAttribute('allowfullscreen', '');
+    main.appendChild(f);
+    openLink.href = urlOf(id);
+    document.title = c.subject + ' ' + c.id + ' — KICE 프로토 차시 시연';
+    if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+  }
+
+  COURSES.forEach(function (c) {
+    var b = document.createElement('button');
+    b.dataset.id = c.id;
+    b.innerHTML = '<b>' + c.subject + ' · ' + c.grade + ' · ' + c.id + '</b>' + c.title;
+    b.onclick = function () { show(c.id); };
+    nav.appendChild(b);
+  });
+
+  document.getElementById('reload').onclick = function () { if (current) show(current); };
+  window.addEventListener('hashchange', function () { var id = location.hash.slice(1); if (id && id !== current) show(id); });
+
+  var first = location.hash.slice(1);
+  show(COURSES.some(function (c) { return c.id === first; }) ? first : COURSES[0].id);
+</script>
+</body>
+</html>
